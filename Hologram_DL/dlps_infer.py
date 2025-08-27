@@ -119,13 +119,13 @@ def infer_and_save_pngs(model_path, phase0_path, out_dir, N_size):
     # 원본 phase_0 저장 (다시 저장 필요 없으면 생략 가능)
     Image.fromarray((I0*65535).astype(np.uint16)).save(os.path.join(out_dir, 'phase_0.png'))
 
-    # 각 위상 예측 저장
+    # 위상 이동 간섭 패턴(intensity) 저장
     phase_preds = []
     for i in range(3):
         pred_img = np.clip(preds[0, i], 0, 1)
         phase_preds.append(pred_img)
-        Image.fromarray((pred_img*65535).astype(np.uint16)).save(os.path.join(out_dir, f'phase_{i+1}_pred.png'))
-
+        Image.fromarray((pred_img*65535).astype(np.uint16)).save(os.path.join(out_dir, f'phase_{i+1}_pred.png')
+    
     # 딥러닝 예측 결과로 4-PSH 복원 (classical_reconstruction과 동일한 방식)
     I1p, I2p, I3p = phase_preds
     
@@ -135,7 +135,7 @@ def infer_and_save_pngs(model_path, phase0_path, out_dir, N_size):
     fy = np.arange(-actual_N//2, actual_N//2) / (actual_N * pixel_size)
     fx, fy = np.meshgrid(fx, fy)
     
-    # 4-PSH 복원 공식 (딥러닝 예측 위상 사용)
+    # 4-PSH 복원 공식 (딥러닝 예측 간섭 패턴 사용)
     CH = (I0 - I2p) - 1j * (I1p - I3p)
     H_back = np.exp(1j * np.pi * lambda_ * z_nominal * (fx**2 + fy**2))
     F_psi = np.fft.fftshift(np.fft.fft2(CH))
