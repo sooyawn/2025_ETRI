@@ -39,7 +39,7 @@ face_3d_model_points = np.array([
     [0.0, 0.0, 0.0], [0.0, -330.0, -65.0],
     [-225.0, 170.0, -135.0], [225.0, 170.0, -135.0],
     [-150.0, -150.0, -125.0], [150.0, -150.0, -125.0]
-], dtype=np.float64)
+], dtype=np.float32)
 
 landmark_ids = [1, 152, 33, 263, 61, 291]
 
@@ -196,7 +196,7 @@ class ThreadedProcessor:
                     rot = (0, 0, 0)
                     pos = (0, 0, 0)
                     if len(image_points) == 6:
-                        image_points_np = np.array(image_points, dtype=np.float64)
+                        image_points_np = np.array(image_points, dtype=np.float32)
                         success, rotation_vector, translation_vector = cv2.solvePnP(
                             face_3d_model_points, image_points_np, CAMERA_MATRIX, DIST_COEFFS)
                         if success:
