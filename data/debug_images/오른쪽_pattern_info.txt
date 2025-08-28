@@ -1,0 +1,3 @@
+Pattern Size: (3, 9)
+Image Shape: (1080, 1920)
+Image Type: uint8
