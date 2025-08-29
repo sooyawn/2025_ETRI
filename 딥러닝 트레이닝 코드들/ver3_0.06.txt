@@ -1,0 +1,35 @@
+5) 모델 구조
+
+공유 인코더 U-Net 백본: (64, 128, 256, 512) 채널 단계
+
+3개 디코더 헤드: 각 헤드가 (I90), (I180), (I270)를 독립적으로 예측
+
+업샘플: F.interpolate(..., bilinear) → Conv(3×3) 으로 체커보드 방지
+
+정규화: GroupNorm(1, C); 활성화: LeakyReLU(0.2)
+
+출력 활성: sigmoid로 [0,1] 범위 보장(라벨도 [0,1]일 때 유리)
+
+장점: 헤드 분리로 역전파 경로가 명확해 수렴 속도가 빠릅니다. 필요 시 백본 채널 축소(예: 32,64,128,256)로 일반화 개선 가능.
+
+6) 손실과 지표 (RMSE-only)
+
+훈련/검증 모두: 채널별 RMSE(=√MSE)를 합산하여 사용
+
+예: loss = RMSE(I90_pred,I90_gt) + RMSE(I180_pred,I180_gt) + RMSE(I270_pred,I270_gt)
+
+로깅: 배치 단위 loss=rmse_sum, 에폭 단위 train/val 평균, best val 저장
+
+포인트: 논문과 같은 지표(RMSE) 로 비교합니다. 보조항(SSIM, TV 등)은 사용하지 않으므로 공정성 유지.
+
+7) 스케줄러/학습 루프
+
+옵티마이저: AdamW(β=(0.9, 0.99), weight_decay=1e-4)
+
+스케줄러: OneCycleLR(최대 LR=cfg.lr, 코사인 anneal)
+
+안정화: AMP, Gradient Clipping(max_norm=1.0)
+
+조기 종료: patience 연속 epoch 동안 val 개선 없으면 stop
+
+필요 시 OneCycle 파라미터(특히 div_factor, final_div_factor)를 낮춰 후반 과도 저LR 구간을 줄일 수 있습니다.
