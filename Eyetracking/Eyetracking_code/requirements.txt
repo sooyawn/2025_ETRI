@@ -1,0 +1,12 @@
+# Core numerical & image processing
+numpy>=1.24
+opencv-contrib-python>=4.8.0
+matplotlib>=3.7
+
+# ML / CV
+torch          # GPU 사용 시, CUDA 버전에 맞춰 먼저 설치 권장 (README 참고)
+ultralytics>=8.1.0
+mediapipe>=0.10.0
+
+# (선택) Windows에서 mediapipe 설치 문제 발생 시, 아래를 먼저 설치하세요
+# protobuf==3.20.*
